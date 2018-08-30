@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
+
+import java.util.List;
+
 import jp.wasabeef.richeditor.RichEditor;
 
 public class MainActivity extends AppCompatActivity {
@@ -34,6 +37,29 @@ public class MainActivity extends AppCompatActivity {
       }
     });
 
+    mEditor.setOnDecorationChangeListener(new RichEditor.OnDecorationStateListener() {
+      @Override
+      public void onStateChangeListener(String text, List<RichEditor.Type> types) {
+        if (types.contains(RichEditor.Type.BOLD)) {
+          findViewById(R.id.action_bold).setBackgroundColor(Color.RED);
+        }
+        else {
+          findViewById(R.id.action_bold).setBackgroundColor(Color.BLACK);
+        }
+        if (types.contains(RichEditor.Type.ITALIC)) {
+          findViewById(R.id.action_italic).setBackgroundColor(Color.RED);
+        }
+        else {
+          findViewById(R.id.action_italic).setBackgroundColor(Color.BLACK);
+        }
+        if (types.contains(RichEditor.Type.UNDERLINE)) {
+          findViewById(R.id.action_underline).setBackgroundColor(Color.RED);
+        }
+        else {
+          findViewById(R.id.action_underline).setBackgroundColor(Color.BLACK);
+        }
+      }
+    });
     findViewById(R.id.action_undo).setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         mEditor.undo();
