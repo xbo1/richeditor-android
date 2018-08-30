@@ -20,212 +20,246 @@ RE.currentSelection = {
     "startContainer": 0,
     "startOffset": 0,
     "endContainer": 0,
-    "endOffset": 0};
+    "endOffset": 0
+};
 
 RE.editor = document.getElementById('editor');
 
-document.addEventListener("selectionchange", function() { RE.backuprange(); });
-
 // Initializations
-RE.callback = function() {
+RE.callback = function () {
+    if (RE.getHtml().length <= 0) {
+        document.execCommand('formatBlock', false, '<div>');
+    }
     window.location.href = "re-callback://" + encodeURI(RE.getHtml());
 }
 
-RE.setHtml = function(contents) {
-    RE.editor.innerHTML = decodeURIComponent(contents.replace(/\+/g, '%20'));
-}
-
-RE.getHtml = function() {
-    return RE.editor.innerHTML;
-}
-
-RE.getText = function() {
-    return RE.editor.innerText;
-}
-
-RE.setBaseTextColor = function(color) {
-    RE.editor.style.color  = color;
-}
-
-RE.setBaseFontSize = function(size) {
-    RE.editor.style.fontSize = size;
-}
-
-RE.setPadding = function(left, top, right, bottom) {
-  RE.editor.style.paddingLeft = left;
-  RE.editor.style.paddingTop = top;
-  RE.editor.style.paddingRight = right;
-  RE.editor.style.paddingBottom = bottom;
-}
-
-RE.setBackgroundColor = function(color) {
-    document.body.style.backgroundColor = color;
-}
-
-RE.setBackgroundImage = function(image) {
-    RE.editor.style.backgroundImage = image;
-}
-
-RE.setWidth = function(size) {
-    RE.editor.style.minWidth = size;
-}
-
-RE.setHeight = function(size) {
-    RE.editor.style.height = size;
-}
-
-RE.setTextAlign = function(align) {
-    RE.editor.style.textAlign = align;
-}
-
-RE.setVerticalAlign = function(align) {
-    RE.editor.style.verticalAlign = align;
-}
-
-RE.setPlaceholder = function(placeholder) {
+RE.setHint = function(placeholder) {
     RE.editor.setAttribute("placeholder", placeholder);
 }
 
-RE.setInputEnabled = function(inputEnabled) {
+RE.setHtml = function (contents) {
+    RE.editor.innerHTML = decodeURIComponent(contents.replace(/\+/g, '%20'));
+}
+
+RE.getHtml = function () {
+    return RE.editor.innerHTML;
+}
+
+RE.getText = function () {
+    return RE.editor.innerText;
+}
+
+RE.setBaseTextColor = function (color) {
+    RE.editor.style.color = color;
+}
+
+RE.setBaseFontSize = function (size) {
+    RE.editor.style.fontSize = size;
+}
+
+RE.setPadding = function (left, top, right, bottom) {
+    RE.editor.style.paddingLeft = left;
+    RE.editor.style.paddingTop = top;
+    RE.editor.style.paddingRight = right;
+    RE.editor.style.paddingBottom = bottom;
+}
+
+RE.setBackgroundColor = function (color) {
+    document.body.style.backgroundColor = color;
+}
+
+RE.setBackgroundImage = function (image) {
+    RE.editor.style.backgroundImage = image;
+}
+
+RE.setWidth = function (size) {
+    RE.editor.style.minWidth = size;
+}
+
+RE.setHeight = function (size) {
+    RE.editor.style.height = size;
+}
+
+RE.setTextAlign = function (align) {
+    RE.editor.style.textAlign = align;
+}
+
+RE.setVerticalAlign = function (align) {
+    RE.editor.style.verticalAlign = align;
+}
+
+RE.setPlaceholder = function (placeholder) {
+    RE.editor.setAttribute("placeholder", placeholder);
+}
+
+RE.setInputEnabled = function (inputEnabled) {
     RE.editor.contentEditable = String(inputEnabled);
 }
 
-RE.undo = function() {
+RE.undo = function () {
     document.execCommand('undo', false, null);
 }
 
-RE.redo = function() {
+RE.redo = function () {
     document.execCommand('redo', false, null);
 }
 
-RE.setBold = function() {
+RE.setBold = function () {
+    RE.expandRange();
     document.execCommand('bold', false, null);
+    RE.restoreRange();
+    RE.freshState();
 }
 
-RE.setItalic = function() {
+RE.setItalic = function () {
+    RE.expandRange();
     document.execCommand('italic', false, null);
+    RE.restoreRange();
+    RE.freshState();
 }
 
-RE.setSubscript = function() {
+RE.setSubscript = function () {
     document.execCommand('subscript', false, null);
 }
 
-RE.setSuperscript = function() {
+RE.setSuperscript = function () {
     document.execCommand('superscript', false, null);
 }
 
-RE.setStrikeThrough = function() {
+RE.setStrikeThrough = function () {
     document.execCommand('strikeThrough', false, null);
+    RE.freshState();
 }
 
-RE.setUnderline = function() {
+RE.setUnderline = function () {
+    RE.expandRange();
     document.execCommand('underline', false, null);
+    RE.restoreRange();
+    RE.freshState();
 }
 
-RE.setBullets = function() {
+RE.setBullets = function () {
     document.execCommand('insertUnorderedList', false, null);
 }
 
-RE.setNumbers = function() {
+RE.setNumbers = function () {
     document.execCommand('insertOrderedList', false, null);
 }
 
-RE.setTextColor = function(color) {
-    RE.restorerange();
+RE.setTextColor = function (color) {
+    RE.restoreRange();
     document.execCommand("styleWithCSS", null, true);
     document.execCommand('foreColor', false, color);
     document.execCommand("styleWithCSS", null, false);
 }
 
-RE.setTextBackgroundColor = function(color) {
-    RE.restorerange();
+RE.setTextBackgroundColor = function (color) {
+    RE.restoreRange();
     document.execCommand("styleWithCSS", null, true);
     document.execCommand('hiliteColor', false, color);
     document.execCommand("styleWithCSS", null, false);
 }
 
-RE.setFontSize = function(fontSize){
+RE.setFontSize = function (fontSize) {
     document.execCommand("fontSize", false, fontSize);
 }
 
-RE.setHeading = function(heading) {
-    document.execCommand('formatBlock', false, '<h'+heading+'>');
+RE.setHeading = function (heading) {
+    document.execCommand('formatBlock', false, '<h' + heading + '>');
+    RE.freshState();
 }
 
-RE.setIndent = function() {
+RE.setIndent = function () {
     document.execCommand('indent', false, null);
 }
 
-RE.setOutdent = function() {
+RE.setOutdent = function () {
     document.execCommand('outdent', false, null);
 }
 
-RE.setJustifyLeft = function() {
+RE.setJustifyLeft = function () {
     document.execCommand('justifyLeft', false, null);
+    RE.freshState();
 }
 
-RE.setJustifyCenter = function() {
+RE.setJustifyCenter = function () {
     document.execCommand('justifyCenter', false, null);
+    RE.freshState();
 }
 
-RE.setJustifyRight = function() {
+RE.setJustifyRight = function () {
     document.execCommand('justifyRight', false, null);
+    RE.freshState();
 }
 
-RE.setBlockquote = function() {
+RE.setBlockquote = function () {
     document.execCommand('formatBlock', false, '<blockquote>');
 }
 
-RE.insertImage = function(url, alt) {
+RE.insertImage = function (url, alt) {
     var html = '<img src="' + url + '" alt="' + alt + '" />';
     RE.insertHTML(html);
 }
 
-RE.insertHTML = function(html) {
-    RE.restorerange();
+RE.insertHTML = function (html) {
+    RE.restoreRange();
     document.execCommand('insertHTML', false, html);
-}
+};
 
-RE.insertLink = function(url, title) {
-    RE.restorerange();
+RE.addLink = function (link) {
+    document.execCommand('CreateLink', "false", link);
+};
+
+RE.insertLink = function (url, title) {
+    RE.restoreRange();
     var sel = document.getSelection();
     if (sel.toString().length == 0) {
-        document.execCommand("insertHTML",false,"<a href='"+url+"'>"+title+"</a>");
+        document.execCommand("insertHTML", false, "<a href='" + url + "'>" + title + "</a>");
     } else if (sel.rangeCount) {
-       var el = document.createElement("a");
-       el.setAttribute("href", url);
-       el.setAttribute("title", title);
+        var el = document.createElement("a");
+        el.setAttribute("href", url);
+        el.setAttribute("title", title);
 
-       var range = sel.getRangeAt(0).cloneRange();
-       range.surroundContents(el);
-       sel.removeAllRanges();
-       sel.addRange(range);
-   }
+        var range = sel.getRangeAt(0).cloneRange();
+        range.surroundContents(el);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
     RE.callback();
 }
 
-RE.setTodo = function(text) {
-    var html = '<input type="checkbox" name="'+ text +'" value="'+ text +'"/> &nbsp;';
+RE.setTodo = function (text) {
+    var html = '<input type="checkbox" name="' + text + '" value="' + text + '"/> &nbsp;';
     document.execCommand('insertHTML', false, html);
 }
 
-RE.prepareInsert = function() {
-    RE.backuprange();
+RE.prepareInsert = function () {
+    RE.backupRange();
 }
 
-RE.backuprange = function(){
+RE.backupRange = function () {
     var selection = window.getSelection();
     if (selection.rangeCount > 0) {
-      var range = selection.getRangeAt(0);
-      RE.currentSelection = {
-          "startContainer": range.startContainer,
-          "startOffset": range.startOffset,
-          "endContainer": range.endContainer,
-          "endOffset": range.endOffset};
+        var range = selection.getRangeAt(0);
+        RE.currentSelection = {
+            "startContainer": range.startContainer,
+            "startOffset": range.startOffset,
+            "endContainer": range.endContainer,
+            "endOffset": range.endOffset
+        };
     }
 }
 
-RE.restorerange = function(){
+RE.expandRange = function() {
+    var sel = document.getSelection();
+    if (sel.toString().length == 0) {
+        var range = sel.getRangeAt(0).cloneRange();
+        var r = sel.getRangeAt(0);
+        r.setStart(r.startContainer, 0);
+    }
+}
+
+RE.restoreRange = function () {
     var selection = window.getSelection();
     selection.removeAllRanges();
     var range = document.createRange();
@@ -234,7 +268,8 @@ RE.restorerange = function(){
     selection.addRange(range);
 }
 
-RE.enabledEditingItems = function(e) {
+var currentItem;
+RE.freshState = function(bsave=true) {
     var items = [];
     if (document.queryCommandState('bold')) {
         items.push('bold');
@@ -279,34 +314,74 @@ RE.enabledEditingItems = function(e) {
     if (formatBlock.length > 0) {
         items.push(formatBlock);
     }
-
+    if (bsave) {
+        currentItem = items;
+    }
     window.location.href = "re-state://" + encodeURI(items.join(','));
 }
 
-RE.focus = function() {
-    var range = document.createRange();
-    range.selectNodeContents(RE.editor);
-    range.collapse(false);
-    var selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
+RE.focus = function () {
+    // var range = document.createRange();
+    // range.selectNodeContents(RE.editor);
+    // range.collapse(false);
+    // var selection = window.getSelection();
+    // selection.removeAllRanges();
+    // selection.addRange(range);
+    // RE.editor.focus();
     RE.editor.focus();
+    var range = window.getSelection();//创建range
+    range.selectAllChildren(RE.editor);//range 选择obj下所有子内容
+    range.collapseToEnd();
+
+    RE.freshState(false);
 }
 
-RE.blurFocus = function() {
+RE.blurFocus = function () {
     RE.editor.blur();
 }
 
-RE.removeFormat = function() {
+RE.removeFormat = function () {
     document.execCommand('removeFormat', false, null);
 }
 
+RE.integrationOnLineStyle = function () {
+    if (currentItem.indexOf("h1") >= 0) {
+        document.execCommand('formatBlock', false, '<h1>');
+    }
+    if (currentItem.indexOf("h3") >= 0) {
+        document.execCommand('formatBlock', false, '<h3>');
+    }
+    if (currentItem.indexOf("h5") >= 0) {
+        document.execCommand('formatBlock', false, '<h5>');
+    }
+
+    if (currentItem.indexOf("justifyCenter") >= 0) {
+        document.execCommand("justifyCenter", false, null);
+    }
+    if (currentItem.indexOf("justifyLeft") >= 0) {
+        document.execCommand("justifyLeft", false, null);
+    }
+    if (currentItem.indexOf("justifyRight") >= 0) {
+        document.execCommand("justifyRight", false, null);
+    }
+}
 // Event Listeners
-RE.editor.addEventListener("input", RE.callback);
-RE.editor.addEventListener("keyup", function(e) {
-    var KEY_LEFT = 37, KEY_RIGHT = 39;
+RE.editor.addEventListener("keyup", function (e) {
+    var KEY_LEFT = 37, KEY_RIGHT = 39, KEY_ENTER=13;
     if (e.which == KEY_LEFT || e.which == KEY_RIGHT) {
-        RE.enabledEditingItems(e);
+        RE.freshState();
+    } else if (e.which == KEY_ENTER) {
+        RE.integrationOnLineStyle();
     }
 });
-RE.editor.addEventListener("click", RE.enabledEditingItems);
+RE.editor.addEventListener("click", RE.freshState);
+//document.addEventListener("selectionchange", function () { RE.freshState(); });
+document.addEventListener("selectionchange", function () { RE.backupRange(); });
+//window.addEventListener("touchend", RE.freshState);
+
+RE.editor.addEventListener("input", RE.callback);
+
+window.onload = function () {
+    RE.editor.click();
+    RE.editor.focus();
+};
